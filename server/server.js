@@ -1,25 +1,32 @@
-import express from 'express'
-import cors from 'cors'
-import 'dotenv/config'
-import connectDB from './configs/mongodb.js'
-import { clerkWebhooks } from './controllers/webhooks.js'
+import express from "express";
+import cors from "cors";
+import "dotenv/config";
+import connectDB from "./configs/mongodb.js";
+import { clerkWebhooks } from "./controllers/webhooks.js";
+import educatorRouter from "./routes/educatorRoutes.js";
+import { clerkMiddleware } from "@clerk/express";
 
-// initialize Express
-const app = express()
+const app = express();
 
-//connect to database
-await connectDB()
+await connectDB();
 
-//Middlewares
-app.use(cors())
+app.use(cors());
+app.use(clerkMiddleware);
 
-//Routes
-app.get('/', (req, res)=> res.send("API Working"))
-app.post('/clerk', express.json(), clerkWebhooks)
+// ⚠️ IMPORTANT: RAW BODY FOR WEBHOOKS
+app.post(
+  "/clerk",
+  express.raw({ type: "application/json" }),
+  clerkWebhooks
+);
 
-//Port
-const PORT = process.env.PORT || 5000
-app.listen(PORT, ()=>{
-    console.log(`Server is running on port ${PORT}`);
-    
-})
+// NORMAL ROUTES (json allowed)
+app.use(express.json());
+app.use("/api/educator", educatorRouter);
+
+app.get("/", (req, res) => res.send("API Working"));
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
