@@ -4,16 +4,19 @@ import User from "../models/User.js";
 // API Controller Function to Manage Clerk User with database
 export const clerkWebhooks = async (req, res) => {
   try {
-    const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+    const payload = JSON.stringify(req.body);
+    const headers = req.headers;
+    const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+    let msg;
+    try {
+      msg = wh.verify(payload, headers);
+    } catch (err) {
+      console.error(err.message);
+      return res.status(400).json({});
+    }
 
-    // Verify Webhook
-    await whook.verify(JSON.stringify(req.body), {
-      "svix-id": req.headers["svix-id"],
-      "svix-timestamp": req.headers["svix-timestamp"],
-      "svix-signature": req.headers["svix-signature"],
-    });
-
-    const { data, type } = req.body;
+    const { data, type } = msg;
+    console.log(`Webhook of type ${type} received`);
     switch (type) {
       case "user.created":
         {
@@ -23,33 +26,38 @@ export const clerkWebhooks = async (req, res) => {
             name: data.first_name + " " + data.last_name,
             imageUrl: data.image_url,
           };
-          await User.create(userData)
-          res.json({})
+          await User.create(userData);
+          console.log("User created successfully");
+          res.json({ success: true, message: "User created successfully" });
           break;
         }
-        case 'user.updated' :{
-            const userData = {
-                email: data.email_address[0].email_address,
+      case "user.updated":
+        {
+          const userData = {
+            email: data.email_addresses[0].email_address,
             name: data.first_name + " " + data.last_name,
             imageUrl: data.image_url,
-
-            }
-            await User.findByIdAndUpdate(data.id, userData)
-            res.json({})
-            break;
+          };
+          await User.findByIdAndUpdate(data.id, userData);
+          console.log("User updated successfully");
+          res.json({ success: true, message: "User updated successfully" });
+          break;
         }
-        case 'user.deleted' : {
-            await User.findByIdAndDelete(data.id)
-            res.json({})
-            break;
-
+      case "user.deleted":
+        {
+          await User.findByIdAndDelete(data.id);
+          console.log("User deleted successfully");
+          res.json({ success: true, message: "User deleted successfully" });
+          break;
         }
-        
+
       default:
         break;
     }
   } catch (error) {
-    
-    res.json({ success: false, message: error.message });
+    console.error("Error processing webhook:", error.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
