@@ -3,6 +3,7 @@ import User from "../models/User.js";
 
 // API Controller Function to Manage Clerk User with database
 export const clerkWebhooks = async (req, res) => {
+  console.log(JSON.stringify(req.body, null, 2));
   try {
     const payload = JSON.stringify(req.body);
     const headers = req.headers;
