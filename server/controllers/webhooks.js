@@ -8,11 +8,15 @@ export const clerkWebhooks = async (req, res) => {
     const headers = req.headers;
     const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
     let msg;
+    console.log("Webhook received!");
+    console.log("Headers:", headers);
+    console.log("Payload:", payload);
     try {
       msg = wh.verify(payload, headers);
+      console.log("Webhook verified successfully:", msg);
     } catch (err) {
-      console.error(err.message);
-      return res.status(400).json({});
+      console.error("Webhook verification failed:", err.message);
+      return res.status(400).json({ success: false, message: "Webhook verification failed" });
     }
 
     const { data, type } = msg;
@@ -26,9 +30,15 @@ export const clerkWebhooks = async (req, res) => {
             name: data.first_name + " " + data.last_name,
             imageUrl: data.image_url,
           };
-          await User.create(userData);
-          console.log("User created successfully");
-          res.json({ success: true, message: "User created successfully" });
+          console.log("User data to be created:", userData);
+          try {
+            await User.create(userData);
+            console.log("User created successfully in database");
+            res.json({ success: true, message: "User created successfully" });
+          } catch (dbError) {
+            console.error("Error creating user in database:", dbError.message);
+            res.status(500).json({ success: false, message: "Error creating user in database" });
+          }
           break;
         }
       case "user.updated":
