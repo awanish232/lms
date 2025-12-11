@@ -8,11 +8,18 @@
 * {
   font-family: 'Outfit', sans-serif;
 }
-@layer base{
+@layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    @apply bg-light-bg text-gray-900;
   }
 }
+
 
 ::-webkit-scrollbar{
   display: none;

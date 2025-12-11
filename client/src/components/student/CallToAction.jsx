@@ -1,17 +1,58 @@
-import React from 'react'
-import { assets } from '../../assets/assets'
+import React from "react";
+import { assets } from "../../assets/assets";
+import { motion } from "framer-motion";
 
 const CallToAction = () => {
   return (
-    <div className='flex flex-col items-center gap-4 pt-10 pb-24 px-8 md:px-0'>
-      <h1 className='text-xl md:text-4xl text-gray-800 font-semibold'>Learn anything, anytime, anywhere</h1>
-      <p className='text-gray-500 sm:text-sm'>Our e-learning platform provides engaging courses that support focused study, active participation, and continuous daily skill development.</p>
-      <div className='flex items-center font-medium gap-6 mt-4'>
-        <button className='px-10 py-3 rounded-md text-white bg-blue-600'>Get started</button>
-        <button className='flex items-center gap-2'>Learn more <img src={assets.arrow_icon} alt="arrow_icon" /></button>
+    <div className="relative pt-20 pb-28 px-8 md:px-0 text-center overflow-hidden">
+
+      {/* Gradient background mesh */}
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-50 via-purple-50/40 to-white opacity-70"></div>
+
+      {/* Decorative gradient blobs */}
+      <div className="absolute bottom-0 left-10 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply blur-3xl opacity-30 animate-blob"></div>
+      <div className="absolute top-0 right-10 w-64 h-64 bg-pink-300 rounded-full mix-blend-multiply blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+
+      <div className="relative z-10 flex flex-col items-center gap-6">
+
+        <motion.h1
+          initial={{ opacity: 0, y: -15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 max-w-3xl leading-snug"
+        >
+          Learn anything, anytime, anywhere
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55 }}
+          className="text-gray-600 max-w-xl text-sm md:text-lg"
+        >
+          Build real skills with interactive courses, expert educators, and a community-driven learning experience that keeps you growing daily.
+        </motion.p>
+
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="flex items-center gap-5 mt-4"
+        >
+          <button className="px-10 py-3 rounded-full text-white bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg shadow-indigo-300/40 hover:shadow-xl hover:-translate-y-1 transition">
+            Get Started
+          </button>
+
+          <button className="flex items-center gap-2 text-indigo-700 font-medium hover:underline hover:underline-offset-4">
+            Learn More
+            <img src={assets.arrow_icon} alt="arrow_icon" className="w-4" />
+          </button>
+        </motion.div>
+
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CallToAction
+export default CallToAction;

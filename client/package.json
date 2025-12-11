@@ -11,12 +11,15 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.57.1",
+    "axios": "^1.13.2",
+    "framer-motion": "^12.23.26",
     "humanize-duration": "^3.33.1",
     "quill": "^2.0.3",
     "rc-progress": "^4.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.6",
+    "react-toastify": "^11.0.5",
     "react-youtube": "^10.1.0",
     "uniqid": "^5.4.0"
   },
