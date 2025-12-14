@@ -67,7 +67,7 @@ const TestimonialsSection = () => {
               href="#"
               className="text-indigo-600 hover:text-indigo-800 px-6 pb-5 font-medium underline"
             >
-              Read full story
+              
             </a>
           </motion.div>
         ))}
