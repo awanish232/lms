@@ -3,7 +3,7 @@
 // Only UI/UX, styling, spacing, shadows, and overall layout updated.
 
 import React, { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
 import { AppContext } from '../../context/AppContext'
 import Loading from '../../components/student/Loading'
 import { assets } from '../../assets/assets'
@@ -16,6 +16,16 @@ import { motion } from 'framer-motion'
 
 const CourseDetails = () => {
   const { id } = useParams()
+  // Affiliate Code Capture
+  const location = useLocation()
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const ref = params.get('ref')
+    if (ref) {
+      sessionStorage.setItem('affiliateCode', ref)
+    }
+  }, [location.search])
+
   const [courseData, setCourseData] = useState(null)
   const [openSections, setOpenSections] = useState({})
   const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false)
@@ -57,9 +67,10 @@ const CourseDetails = () => {
       if (isAlreadyEnrolled) return toast.warn('Already Enrolled')
 
       const token = await getToken()
+      const affiliateCode = sessionStorage.getItem('affiliateCode');
       const { data } = await axios.post(
         backendUrl + '/api/user/purchase',
-        { courseId: courseData._id },
+        { courseId: courseData._id, affiliateCode },
         { headers: { Authorization: `Bearer ${token}` } }
       )
 
@@ -88,7 +99,7 @@ const CourseDetails = () => {
       localStorage.setItem('lms_dark_mode', darkMode ? 'true' : 'false')
       if (darkMode) document.documentElement.classList.add('dark')
       else document.documentElement.classList.remove('dark')
-    } catch {}
+    } catch { }
   }, [darkMode])
 
   const toggleSection = (index) => {
@@ -192,7 +203,7 @@ const CourseDetails = () => {
                   </button>
 
                   {/* Chapter Lectures */}
-                  <div className={`${openSections[idx] ? 'max-h-[500px]' : 'max-h-0'} overflow-hidden transition-all duration-300`}> 
+                  <div className={`${openSections[idx] ? 'max-h-[500px]' : 'max-h-0'} overflow-hidden transition-all duration-300`}>
                     <ul className="p-5 space-y-4 bg-white dark:bg-gray-800">
                       {chapter.chapterContent.map((lecture, i) => (
                         <li key={i} className="flex justify-between items-start">

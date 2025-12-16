@@ -11,6 +11,8 @@ const userSchema = new mongoose.Schema(
         ref: 'Course',
       },
     ],
+    affiliateEarnings: { type: Number, default: 0 },
+    affiliateCode: { type: String, unique: true, sparse: true },
   },
   { timestamps: true }
 );

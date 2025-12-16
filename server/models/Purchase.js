@@ -11,6 +11,11 @@ const PurchaseSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    affiliateId: {
+      type: String, // Storing User ID of the affiliate
+      ref: "User",
+    },
+    commissionAmount: { type: Number, default: 0 },
     amount: { type: Number, required: true },
     status: {
       type: String,
@@ -20,4 +25,4 @@ const PurchaseSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-export const Purchase = mongoose.model('Purchase' , PurchaseSchema)
+export const Purchase = mongoose.model('Purchase', PurchaseSchema)

@@ -95,6 +95,15 @@ export const stripeWebhooks = async (request, response) => {
       purchaseData.status = 'completed';
       await purchaseData.save();
 
+      // Affiliate Commission Credit
+      if (purchaseData.affiliateId && purchaseData.commissionAmount > 0) {
+        const affiliateUser = await User.findById(purchaseData.affiliateId);
+        if (affiliateUser) {
+          affiliateUser.affiliateEarnings += purchaseData.commissionAmount;
+          await affiliateUser.save();
+        }
+      }
+
       break;
     }
     case 'checkout.session.expired': {

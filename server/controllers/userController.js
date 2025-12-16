@@ -33,7 +33,7 @@ export const userEnrolledCourses = async (req, res) => {
 // PURCHASE COURSE
 export const purchaseCourse = async (req, res) => {
   try {
-    const { courseId } = req.body;
+    const { courseId, affiliateCode } = req.body;
     const origin = req.headers.origin || process.env.CLIENT_URL || "http://localhost:5173";
     const userId = req.auth.userId;
 
@@ -44,7 +44,7 @@ export const purchaseCourse = async (req, res) => {
       return res.json({ success: false, message: "Data Not Found" });
     }
 
-    const purchaseData = {
+    let purchaseData = {
       courseId: courseData._id,
       userId,
       amount: (
@@ -52,6 +52,15 @@ export const purchaseCourse = async (req, res) => {
         (courseData.discount * courseData.coursePrice) / 100
       ).toFixed(2),
     };
+
+    // Affiliate Logic
+    if (affiliateCode && affiliateCode !== userId) {
+      const affiliateUser = await User.findById(affiliateCode); // Assuming Code is User ID for now
+      if (affiliateUser) {
+        purchaseData.affiliateId = affiliateUser._id;
+        purchaseData.commissionAmount = (purchaseData.amount * 0.05).toFixed(2);
+      }
+    }
 
     const newPurchase = await Purchase.create(purchaseData);
 
@@ -193,6 +202,15 @@ export const verifyPurchase = async (req, res) => {
       if (!user.enrolledCourses.includes(purchase.courseId)) {
         user.enrolledCourses.push(purchase.courseId);
         isAnyPurchaseUpdated = true;
+      }
+
+      // Affiliate Commission Credit (Simplified for Verify)
+      if (purchase.affiliateId && purchase.commissionAmount > 0) {
+        const affiliateUser = await User.findById(purchase.affiliateId);
+        if (affiliateUser) {
+          affiliateUser.affiliateEarnings += purchase.commissionAmount;
+          await affiliateUser.save();
+        }
       }
     }
 
