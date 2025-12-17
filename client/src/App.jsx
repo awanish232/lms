@@ -1,7 +1,7 @@
 import React from 'react'
 import './index.css'
 
-import { Route, Routes, useMatch } from 'react-router-dom'
+import { Route, Routes, useMatch, useLocation } from 'react-router-dom'
 import Home from './pages/student/Home'
 import CoursesList from './pages/student/CoursesList'
 import CourseDetails from './pages/student/CourseDetails'
@@ -21,6 +21,17 @@ import { ToastContainer } from 'react-toastify';
 
 const App = () => {
   const isEducatorRoute = useMatch('/educator/*')
+  const location = useLocation()
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const ref = params.get('ref')
+    if (ref) {
+      sessionStorage.setItem('affiliateCode', ref)
+      console.log("Affiliate Code Captured:", ref);
+    }
+  }, [location.search])
+
   return (
     <div className='text-default min-h-screen bg-white'>
       <ToastContainer />

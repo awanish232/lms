@@ -86,6 +86,11 @@ export const stripeWebhooks = async (request, response) => {
         break;
       }
 
+      if (purchaseData.status === 'completed') {
+        // Already processed, skip to avoid double counting
+        break;
+      }
+
       courseData.enrolledStudents.push(userData._id);
       await courseData.save();
 

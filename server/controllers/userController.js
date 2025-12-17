@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import { Purchase } from "../models/Purchase.js";
+import { Payout } from "../models/Payout.js";
 import Stripe from "stripe";
 import Course from "../models/Course.js";
 import { CourseProgress } from "../models/CourseProgress.js";
@@ -58,7 +59,7 @@ export const purchaseCourse = async (req, res) => {
       const affiliateUser = await User.findById(affiliateCode); // Assuming Code is User ID for now
       if (affiliateUser) {
         purchaseData.affiliateId = affiliateUser._id;
-        purchaseData.commissionAmount = (purchaseData.amount * 0.05).toFixed(2);
+        purchaseData.commissionAmount = parseFloat((purchaseData.amount * 0.05).toFixed(2));
       }
     }
 
@@ -165,6 +166,72 @@ export const addUserRating = async (req, res) => {
 };
 
 // Verify Purchase (Localhost/Manual Fix)
+// get affiliate stats and referrals
+export const getAffiliateStats = async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.json({ success: false, message: 'User not found' });
+    }
+
+    const referrals = await Purchase.find({ affiliateId: userId, status: 'completed' })
+      .populate('userId', 'name imageUrl')
+      .populate('courseId', 'courseTitle');
+
+    const payouts = await Payout.find({ userId });
+
+    res.json({
+      success: true,
+      referrals: referrals.map(r => ({
+        _id: r._id,
+        studentName: r.userId ? r.userId.name : 'Unknown User',
+        studentImage: r.userId ? r.userId.imageUrl : '',
+        courseTitle: r.courseId ? r.courseId.courseTitle : 'Unknown Course',
+        amount: r.amount,
+        commission: r.commissionAmount,
+        date: r.createdAt
+      })),
+      payouts
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+}
+
+// request payout
+export const requestPayout = async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { amount } = req.body; // or default to full balance
+
+    if (!amount || amount <= 0) {
+      return res.json({ success: false, message: 'Invalid Amount' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.json({ success: false, message: 'User Not Found' });
+
+    if (user.affiliateEarnings < amount) {
+      return res.json({ success: false, message: 'Insufficient Balance' });
+    }
+
+    user.affiliateEarnings -= amount;
+    await user.save();
+
+    await Payout.create({
+      userId,
+      amount,
+      status: 'pending'
+    });
+
+    res.json({ success: true, message: 'Payout Requested Successfully' });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+}
+
 export const verifyPurchase = async (req, res) => {
   try {
     const userId = req.auth.userId;

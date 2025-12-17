@@ -153,7 +153,9 @@ export const AppContextProvider = (props) => {
     setUserData,
     getToken,
     fetchAllCourses,
-    getYouTubeId
+    fetchAllCourses,
+    getYouTubeId,
+    fetchUserData
   };
 
   return (
