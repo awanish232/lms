@@ -62,7 +62,7 @@ const Navbar = () => {
                 onClick={becomeEducator}
                 className="hover:text-primary transition-colors text-sm tracking-wide"
               >
-                {isEducator ? 'Educator Dashboard' : 'Become Educator'}
+                {isEducator ? 'Affiliate Dashboard' : 'Become an Affiliate'}
               </button>
               <Link
                 to="/my-enrollments"
